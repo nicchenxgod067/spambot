@@ -1,5 +1,5 @@
 {
-    "spam_api_url": "http://192.168.1.163:5000/send_requests",
+    "spam_api_url": "https://spambot-api.vercel.app/send_requests",
     "timeout": 60,
     "enabled": true
 }
