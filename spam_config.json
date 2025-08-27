@@ -1,5 +1,0 @@
-{
-    "spam_api_url": "https://spambot-api.vercel.app/send_requests",
-    "timeout": 60,
-    "enabled": true
-}

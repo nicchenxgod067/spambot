@@ -1,0 +1,12 @@
+{
+  "accounts": [
+    {
+      "username": "sample_user_1",
+      "password": "sample_pass_1"
+    },
+    {
+      "username": "sample_user_2", 
+      "password": "sample_pass_2"
+    }
+  ]
+}
