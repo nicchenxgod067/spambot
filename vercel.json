@@ -11,10 +11,5 @@
       "src": "/(.*)",
       "dest": "local_spam_server.py"
     }
-  ],
-  "functions": {
-    "local_spam_server.py": {
-      "maxDuration": 300
-    }
-  }
+  ]
 }
