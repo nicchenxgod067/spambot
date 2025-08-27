@@ -215,7 +215,7 @@ def health():
     return jsonify({
         'status': 'healthy',
         'tokens_loaded': len(tokens),
-        'server': 'local'
+        'server': 'vercel'
     })
 
 @app.route('/refresh_tokens', methods=['POST'])
@@ -233,6 +233,18 @@ def refresh_tokens_endpoint():
             'message': str(e)
         }), 500
 
+@app.route('/', methods=['GET'])
+def home():
+    """Home endpoint"""
+    return jsonify({
+        'message': 'Spam Bot API is running on Vercel',
+        'endpoints': {
+            'health': '/health',
+            'send_requests': '/send_requests?uid=YOUR_UID',
+            'refresh_tokens': '/refresh_tokens (POST)'
+        }
+    })
+
+# For Vercel deployment - export the app
 if __name__ == '__main__':
-    print("Starting local spam server on http://192.168.1.163:5000")
-    app.run(host='192.168.1.163', port=5000, debug=True)
+    app.run(debug=True)
