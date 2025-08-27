@@ -137,15 +137,17 @@ def send_friend_request(token, target_uid):
 def send_requests():
     """Handle spam friend requests"""
     try:
-        # Get UID from query parameter
+        # Get parameters from query string
         target_uid = request.args.get('uid')
+        bot_name = request.args.get('bot_name', 'Unknown')
+        
         if not target_uid:
             return jsonify({
                 'error': 'Missing UID parameter',
                 'message': 'Please provide a UID parameter'
             }), 400
         
-        print(f"Received spam request for UID: {target_uid}")
+        print(f"Received spam request for UID: {target_uid} from bot: {bot_name}")
         
         # Load tokens
         tokens = load_tokens()
@@ -195,7 +197,8 @@ def send_requests():
             'failed_count': failed_count,
             'total_requests': total_requests,
             'player_name': player_name,
-            'target_uid': target_uid
+            'target_uid': target_uid,
+            'bot_name': bot_name
         }
         
         print(f"Spam completed: {success_count} success, {failed_count} failed")
@@ -232,6 +235,15 @@ def refresh_tokens_endpoint():
             'error': 'Failed to refresh tokens',
             'message': str(e)
         }), 500
+
+@app.route('/test', methods=['GET'])
+def test():
+    """Simple test endpoint"""
+    return jsonify({
+        'message': 'API is working!',
+        'timestamp': time.time(),
+        'status': 'success'
+    })
 
 @app.route('/', methods=['GET'])
 def home():
