@@ -1,15 +1,14 @@
 {
   "version": 2,
-  "builds": [
-    {
-      "src": "local_spam_server.py",
-      "use": "@vercel/python"
+  "functions": {
+    "api/index.py": {
+      "maxDuration": 300
     }
-  ],
+  },
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "local_spam_server.py"
+      "dest": "/api/index.py"
     }
   ]
 }
