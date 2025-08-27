@@ -2,13 +2,20 @@
 
 A complete spam system for sending friend requests in Clash of Clans using multiple accounts.
 
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fnicchenxgod067%2Fspambot)
+
 ## Features
 
 - **Local Flask Server**: Runs on `http://192.168.1.163:5000`
+- **Vercel Deployment**: Ready for cloud deployment
 - **Multiple Account Support**: Uses multiple JWT tokens for spam requests
 - **Automatic Token Generation**: Generates fresh JWT tokens from input data
 - **Real-time Status**: Provides detailed success/failure counts
 - **Health Monitoring**: Built-in health check endpoints
+
+## Quick Deploy
+
+Click the **"Deploy with Vercel"** button above to instantly deploy this project to Vercel!
 
 ## Quick Start
 
@@ -92,6 +99,8 @@ Manually refresh JWT tokens.
 spambot_repo/
 ├── local_spam_server.py          # Main Flask server
 ├── local_requirements.txt        # Python dependencies
+├── requirements.txt              # Vercel dependencies
+├── vercel.json                  # Vercel configuration
 ├── force_generate_tokens.py      # Token generation script
 ├── spam_config.json             # Configuration file
 ├── protobuf_utils.py            # Protobuf utilities
