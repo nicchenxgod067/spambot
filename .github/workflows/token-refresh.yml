@@ -77,7 +77,7 @@ jobs:
         git config --local user.name "GitHub Action"
         git add token_bd.json
         git commit -m "🤖 Auto-refresh tokens - $(date '+%Y-%m-%d %H:%M:%S')"
-        git push
+        git push origin main:master
     
     - name: Create summary
       run: |
