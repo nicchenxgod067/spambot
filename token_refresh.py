@@ -32,7 +32,7 @@ logger = logging.getLogger(__name__)
 TOKENS_FILE = "token_bd.json"
 INPUT_FILE = "input_bd.json"
 JWT_SERVICE_URL = "https://tcp1-two.vercel.app/jwt/cloudgen_jwt"
-TOKEN_TTL_SECONDS = 7 * 60 * 60  # 7 hours
+TOKEN_TTL_SECONDS = 1 * 60  # 1 minute for testing (normally 7 hours)
 GITHUB_REPO = "nicchenxgod067/spambot"  # Your actual repo
 GITHUB_TOKEN = os.getenv('TOKEN_REFRESH_BOT')  # Set this as environment variable
 
