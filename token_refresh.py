@@ -12,6 +12,10 @@ import subprocess
 import sys
 from datetime import datetime
 import logging
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 # Configure logging
 logging.basicConfig(
@@ -30,7 +34,7 @@ INPUT_FILE = "input_bd.json"
 JWT_SERVICE_URL = "https://tcp1-two.vercel.app/jwt/cloudgen_jwt"
 TOKEN_TTL_SECONDS = 7 * 60 * 60  # 7 hours
 GITHUB_REPO = "nicchenxgod067/spambot"  # Your actual repo
-GITHUB_TOKEN = os.getenv('GITHUB_TOKEN')  # Set this as environment variable
+GITHUB_TOKEN = os.getenv('TOKEN_REFRESH_BOT')  # Set this as environment variable
 
 def load_input_data():
     """Load input data for token generation"""
@@ -42,37 +46,91 @@ def load_input_data():
         return None
 
 def refresh_tokens():
-    """Refresh tokens using the JWT service"""
+    """Refresh tokens using the JWT service with improved retry logic"""
     try:
         input_data = load_input_data()
         if not input_data:
             raise RuntimeError(f"Could not load {INPUT_FILE}")
         
         logger.info(f"🔄 Refreshing tokens via JWT service: {JWT_SERVICE_URL}")
+        logger.info(f"📊 Processing {len(input_data)} accounts")
         
-        response = requests.post(
-            JWT_SERVICE_URL,
-            json=input_data,
-            headers={"Content-Type": "application/json"},
-            timeout=300
-        )
+        # Process accounts individually with retry logic for maximum success rate
+        all_successful_tokens = []
+        failed_accounts = []
         
-        if response.status_code != 200:
-            raise RuntimeError(f"JWT service error {response.status_code}: {response.text[:200]}")
+        for i, account in enumerate(input_data):
+            uid = account.get('uid', 'unknown')
+            logger.info(f"🔄 Processing account {i+1}/{len(input_data)}: UID {uid}")
+            
+            # Retry logic for each account
+            max_retries = 3
+            retry_delay = 2
+            
+            for attempt in range(max_retries):
+                try:
+                    response = requests.post(
+                        JWT_SERVICE_URL,
+                        json=[account],  # Send one account at a time
+                        headers={"Content-Type": "application/json"},
+                        timeout=60  # 1 minute per account
+                    )
+                    
+                    if response.status_code == 200:
+                        tokens_data = response.json()
+                        if tokens_data and len(tokens_data) > 0 and tokens_data[0].get("status") == "live":
+                            all_successful_tokens.extend(tokens_data)
+                            logger.info(f"✅ Account {i+1}: Token generated successfully")
+                            break  # Success, move to next account
+                        else:
+                            logger.warning(f"⚠️ Account {i+1}: No live token returned")
+                            if attempt < max_retries - 1:
+                                logger.info(f"🔄 Retrying account {i+1} (attempt {attempt + 2}/{max_retries})")
+                                time.sleep(retry_delay)
+                                continue
+                            else:
+                                failed_accounts.append(account)
+                                logger.error(f"❌ Account {i+1}: Failed after {max_retries} attempts")
+                    else:
+                        logger.warning(f"⚠️ Account {i+1}: HTTP {response.status_code}")
+                        if attempt < max_retries - 1:
+                            logger.info(f"🔄 Retrying account {i+1} (attempt {attempt + 2}/{max_retries})")
+                            time.sleep(retry_delay)
+                            continue
+                        else:
+                            failed_accounts.append(account)
+                            logger.error(f"❌ Account {i+1}: Failed after {max_retries} attempts")
+                            
+                except requests.exceptions.RequestException as e:
+                    logger.warning(f"⚠️ Account {i+1}: Request failed - {e}")
+                    if attempt < max_retries - 1:
+                        logger.info(f"🔄 Retrying account {i+1} (attempt {attempt + 2}/{max_retries})")
+                        time.sleep(retry_delay)
+                        continue
+                    else:
+                        failed_accounts.append(account)
+                        logger.error(f"❌ Account {i+1}: Failed after {max_retries} attempts")
+            
+            # Small delay between accounts to be nice to the server
+            time.sleep(1)
         
-        tokens_data = response.json()
-        successful_tokens = [item for item in tokens_data if item.get("status") == "live" and item.get("token")]
+        if not all_successful_tokens:
+            raise RuntimeError("No live tokens were generated from any account")
         
-        if not successful_tokens:
-            raise RuntimeError("No live tokens returned from JWT service")
-        
-        output_data = [{"token": item["token"]} for item in successful_tokens]
+        output_data = [{"token": item["token"]} for item in all_successful_tokens]
         
         # Save tokens to file
         with open(TOKENS_FILE, "w", encoding="utf-8") as f:
             json.dump(output_data, f, indent=4, ensure_ascii=False)
         
-        logger.info(f"✅ Successfully refreshed {len(output_data)} tokens")
+        success_rate = (len(output_data) / len(input_data)) * 100
+        logger.info(f"✅ Successfully refreshed {len(output_data)}/{len(input_data)} tokens ({success_rate:.1f}% success rate)")
+        
+        if failed_accounts:
+            logger.warning(f"⚠️ {len(failed_accounts)} accounts failed:")
+            for account in failed_accounts:
+                logger.warning(f"   UID: {account.get('uid', 'unknown')}")
+        
         return output_data
         
     except Exception as e:
@@ -83,7 +141,7 @@ def commit_and_push():
     """Commit and push changes to GitHub"""
     try:
         if not GITHUB_TOKEN:
-            logger.warning("⚠️ GITHUB_TOKEN not set, skipping git operations")
+            logger.warning("⚠️ TOKEN_REFRESH_BOT not set, skipping git operations")
             return False
         
         # Configure git

@@ -27,7 +27,7 @@ git push origin main
 1. Go to your repository on GitHub
 2. Click **Settings** → **Secrets and variables** → **Actions**
 3. Click **New repository secret**
-4. Name: `GITHUB_TOKEN`
+4. Name: `TOKEN_REFRESH_BOT`
 5. Value: (paste the token from step 2)
 6. Click **Add secret**
 
@@ -63,7 +63,7 @@ The system will now:
 
 ### If tokens don't refresh:
 1. Check GitHub Actions logs
-2. Verify `GITHUB_TOKEN` secret is set
+2. Verify `TOKEN_REFRESH_BOT` secret is set
 3. Check if `input_bd.json` has valid data
 
 ### If GitHub push fails:

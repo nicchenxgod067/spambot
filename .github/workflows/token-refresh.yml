@@ -15,6 +15,8 @@ on:
 jobs:
   refresh-tokens:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     
     steps:
     - name: Checkout repository
@@ -56,6 +58,8 @@ jobs:
     
     - name: Refresh tokens
       if: steps.token_age.outputs.age_hours > 6.5 || github.event.inputs.force_refresh == 'true'
+      env:
+        TOKEN_REFRESH_BOT: ${{ secrets.TOKEN_REFRESH_BOT }}
       run: |
         python3 token_refresh.py
     
