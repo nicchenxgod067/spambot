@@ -41,14 +41,14 @@ jobs:
         if [ -f "token_bd.json" ]; then
           # Calculate age in hours
           AGE_HOURS=$(python3 -c "
-          import os, time
-          if os.path.exists('token_bd.json'):
-              mtime = os.path.getmtime('token_bd.json')
-              age_hours = (time.time() - mtime) / 3600
-              print(f'{age_hours:.1f}')
-          else:
-              print('999')
-          ")
+import os, time
+if os.path.exists('token_bd.json'):
+    mtime = os.path.getmtime('token_bd.json')
+    age_hours = (time.time() - mtime) / 3600
+    print(f'{age_hours:.1f}')
+else:
+    print('999')
+")
           echo "age_hours=$AGE_HOURS" >> $GITHUB_OUTPUT
           echo "Token file age: $AGE_HOURS hours"
         else
